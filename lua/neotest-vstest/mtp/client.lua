@@ -150,7 +150,7 @@ function M.discovery_tests(dll_path)
   local tests = {}
 
   local on_update = function(err, result, ctx)
-    if result.changes and result.changes ~= vim.NIL then
+    if result.changes then
       for _, test in ipairs(result.changes) do
         tests[#tests + 1] = test.node
       end
@@ -225,7 +225,7 @@ function M.run_tests(dll_path, nodes)
   local output_stream = nio.control.queue()
 
   local on_update = function(_, result)
-    if result.changes and result.changes ~= vim.NIL then
+    if result.changes then
       nio.run(function()
         for _, test in ipairs(result.changes) do
           local test_result = run_results[test.node.uid]
@@ -307,12 +307,10 @@ function M.debug_tests(dll_path, nodes)
   local done_event = nio.control.event()
 
   local on_update = function(_, result)
-    if result.changes and result.changes ~= vim.NIL then
-      for _, test in ipairs(result.changes) do
-        local test_result = parseTestResult(test)
-        if test_result then
-          run_results[test.node.uid] = test_result
-        end
+    for _, test in ipairs(result.changes) do
+      local test_result = parseTestResult(test)
+      if test_result then
+        run_results[test.node.uid] = test_result
       end
     end
   end
